@@ -61,7 +61,7 @@ module Phlox
       # it might be better to just set the ID, but fields might not really be their we think are (since OpenEMR API
       # will silently drop them) so we reload the full resource to be paranoid
       if patient_id = decoded_body.fetch('patientId')
-        self.class.find_by_id(patient_id, token)
+       load(self.class.find_by_id(patient_id, token).attributes)
       else
         raise_client_error(decoded_body)
       end
