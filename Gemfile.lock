@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    phlox (0.0.1)
+    phlox (0.0.2)
       activeresource
       rails (~> 3.2.16)
 
