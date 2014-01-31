@@ -62,6 +62,8 @@ module Phlox
       # will silently drop them) so we reload the full resource to be paranoid
       if patient_id = decoded_body.fetch('patientId')
        load(self.class.find_by_id(patient_id, token).attributes)
+       @persisted = true unless self.id.blank?    # there is no accessor for persisted
+       self
       else
         raise_client_error(decoded_body)
       end
