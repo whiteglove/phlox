@@ -6,8 +6,6 @@ module Phlox
 end
 
 if defined?(Rails)
-  require "phlox/engine"
-
   if Rails.env.development?
 
     # Helps with debugging
@@ -27,5 +25,7 @@ if defined?(Rails)
     end
 
   end
-
+else
+  require 'active_resource'
+  Dir.glob(File.dirname(__FILE__) + '/../app/models/phlox/*.rb'){ |file| require file }
 end

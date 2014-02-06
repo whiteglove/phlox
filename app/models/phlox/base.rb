@@ -3,7 +3,7 @@ module Phlox
     include ActiveResource::Extend::StaticPath
 
     # TODO : make this configurable
-    self.site    = "https://openemr.whiteglove.com/openemr/api/"
+    self.site    = Phlox.site #"https://openemr.whiteglove.com/openemr/api/"
     self.format  = :xml
 
     # Normally ActiveResource posts using the format (json/xml), but OpenEMR doesn't accept XML
