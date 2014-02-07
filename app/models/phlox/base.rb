@@ -2,7 +2,7 @@ module Phlox
   class Base < ActiveResource::Base
     include ActiveResource::Extend::StaticPath
 
-    self.site = Phlox.site
+    self.site = Phlox.site || "http://test.openemr.com/openemr/api"
     self.format  = :xml
 
     # Normally ActiveResource posts using the format (json/xml), but OpenEMR doesn't accept XML
