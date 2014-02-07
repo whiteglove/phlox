@@ -5,6 +5,7 @@ module Phlox
 
   def self.setup(&block)
     yield self
+    Phlox::Base.site = self.site
   end
 
   if defined?(Rails)

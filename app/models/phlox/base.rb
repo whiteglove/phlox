@@ -2,8 +2,7 @@ module Phlox
   class Base < ActiveResource::Base
     include ActiveResource::Extend::StaticPath
 
-    # TODO : make this configurable
-    self.site    = Phlox.site #"https://openemr.whiteglove.com/openemr/api/"
+    # self.site configured by parent in lib/phlox/engine.rb
     self.format  = :xml
 
     # Normally ActiveResource posts using the format (json/xml), but OpenEMR doesn't accept XML
