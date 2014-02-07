@@ -1,3 +1,7 @@
+v1.0.0 =====
+* You can now configure the site from the parent app
+* You can configure a system user and login via new convenience method
+* Allow gem to load without rails if desired
 
 v0.0.1 =====
 
