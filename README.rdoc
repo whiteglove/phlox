@@ -1,2 +1,11 @@
 = Phlox
 
+== Configuration
+
+# sample configuration placed in config/initializers/phlox.rb
+
+Phlox.setup do |config|
+  config.site = <url to openemr api>
+  config.system_user = <admin username>
+  config.system_password = <admin password>
+end
