@@ -1,3 +1,6 @@
+v1.0.1 =====
+* Update gem loading so it requires base model before others
+
 v1.0.0 =====
 * You can now configure the site from the parent app
 * You can configure a system user and login via new convenience method

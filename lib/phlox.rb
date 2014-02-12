@@ -27,5 +27,7 @@ if defined?(Rails)
   end
 else
   require 'active_resource'
+  # require base file before other models
+  require File.dirname(__FILE__) + '/../app/models/phlox/base.rb'
   Dir.glob(File.dirname(__FILE__) + '/../app/models/phlox/*.rb'){ |file| require file }
 end
