@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    phlox (1.0.0)
+    phlox (1.0.1)
       activeresource
       rails (~> 3.2.16)
 
@@ -52,7 +52,7 @@ GEM
       treetop (~> 1.4.8)
     mime-types (1.25.1)
     multi_json (1.8.2)
-    polyglot (0.3.3)
+    polyglot (0.3.4)
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -104,7 +104,7 @@ GEM
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
-    tzinfo (0.3.38)
+    tzinfo (0.3.39)
     yard (0.8.7.3)
 
 PLATFORMS

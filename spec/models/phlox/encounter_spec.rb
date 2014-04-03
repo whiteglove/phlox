@@ -147,7 +147,7 @@ module Phlox
         end
 
         context "Find by visit" do
-          let(:visit) { Encounter.find_by_id(1, '12345', 16) }
+          let(:visit) { Encounter.find_by_id(16, 1, '12345') }
 
           it "should return the visit with id 9" do
             visit.encounter.should == "16"

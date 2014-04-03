@@ -10,20 +10,20 @@ module Phlox
     # validates :provider_id, provider_id: true, if: ->(object){ object.attribute_present?('provider_id') }
     # validates :list, list: true, if: ->(object){ object.attribute_present?('list') }
 
-    def self.find_by_patient_id(id, token)
-      get_visits(id, token).map do |visit|
+    def self.find_by_patient_id(pid, token)
+      get_visits(pid, token).map do |visit|
         new(visit, token, true)
       end
     end
 
-    def self.find_by_id(id, token, visit_id)
-      new(get_visits(id, token).detect{ |visit| visit["encounter"] == visit_id.to_s }, token, true)
+    def self.find_by_id(visit_id, pid, token)
+      new(get_visits(pid, token).detect{ |visit| visit["encounter"] == visit_id.to_s }, token, true)
     end
 
     private
 
-    def self.get_visits(id, token)
-      response = post(:getvisits, {:patientID => id, :token => token_from_obj(token)} )
+    def self.get_visits(pid, token)
+      response = post(:getvisits, {:patientId => pid, :token => token_from_obj(token)} )
       decoded_body = decode_body_from_response(response).fetch('Visit')
       decoded_body = [decoded_body] if decoded_body.is_a?(Hash)
       return decoded_body
