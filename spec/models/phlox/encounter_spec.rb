@@ -173,39 +173,47 @@ module Phlox
     end
 
 
-    # context "with valid attributes" do
-    #   before(:all) do
-    #     add_response = "<Encounter><status>0</status><EncounterId>2</EncounterId><reason>The Encounter has been added</reason></Encounter>\n"
-    #     update_response = "<Encounter><status>0</status><EncounterId>2</EncounterId><reason>The Encounter has been updated</reason></Encounter>\n"
-    #     ar_response = "<EncounterList><status>0</status><reason>Success Encounter processing record</reason><Encounter><demographics><id>1</id><pid>2</pid></demographics></Encounter></EncounterList>"
-    #     ActiveResource::HttpMock.respond_to do |mock|
-    #       mock.post "/openemr/api/getEncounterrecord", {}, ar_response, 200
-    #       mock.post "/openemr/api/addEncounter", {}, add_response, 200
-    #       mock.post "/openemr/api/updateEncounter", {}, update_response, 200
-    #     end
-    #   end
+    context "with valid attributes" do
+      before(:all) do
+        add_response = "<PatientVisit><status>0</status><reason>The Patient visit has been added</reason><visit_id>999</visit_id></PatientVisit>"
+        # update_response = ""
+        ActiveResource::HttpMock.respond_to do |mock|
+          mock.post "/openemr/api/addvisit", {}, add_response, 200
+          #mock.post "/openemr/api/updateEncounter", {}, update_response, 200
+        end
+      end
 
-    #   context "creating" do
-    #     subject{ Encounter.create({:firstname => 'Test'}, '12345') }
-    #     it_behaves_like "a persisted Encounter"
-    #   end
+      context "creating" do
+        let(:new_visit){ Encounter.create(
+          :token => '12345',
+          :pid => 1,
+          :oemr_facility_id => 10,
+          :scheduled_at => Time.now.to_s(:db),
+          :patient_type => "Established Patient"
+          )}
 
-    #   context "updating" do
-    #     let(:Encounter){ Encounter.find_by_id(1, '12345') }
-    #     subject{ Encounter.update_attributes(:firstname => 'Testme') }
+        it "should respond with the OpenEMR visit id" do
+          new_visit.should == "999"
+        end
 
-    #     it "returns true" do
-    #       expect(Encounter.update_attributes(:firstname => 'Testme')).to be_true
-    #     end
-    #   end
+      end
 
-    #   context "saving" do
-    #     let(:Encounter){ Encounter.new({:firstname => 'Test', :lastname => 'Meout'}, '12345') }
-    #     subject{ Encounter.save }
-    #     it_behaves_like "a persisted Encounter"
-    #   end
+      # context "updating" do
+      #   let(:Encounter){ Encounter.find_by_id(1, '12345') }
+      #   subject{ Encounter.update_attributes(:firstname => 'Testme') }
+      #
+      #   it "returns true" do
+      #     expect(Encounter.update_attributes(:firstname => 'Testme')).to be_true
+      #   end
+      # end
+      #
+      # context "saving" do
+      #   let(:Encounter){ Encounter.new({:firstname => 'Test', :lastname => 'Meout'}, '12345') }
+      #   subject{ Encounter.save }
+      #   it_behaves_like "a persisted Encounter"
+      # end
 
-    # end
+    end
 
 
     # context "with invalid attributes" do

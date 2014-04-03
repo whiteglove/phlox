@@ -20,6 +20,38 @@ module Phlox
       new(get_visits(pid, token).detect{ |visit| visit["encounter"] == visit_id.to_s }, token, true)
     end
 
+
+    # $token = $_POST['token'];
+    # $patientId = $_POST['patientId'];
+    # $reason = $_POST['reason'];
+    # $facility = $_POST['facility'];
+    # $facility_id = $_POST['facility_id'];
+    # $dateService = $_POST['dateService'];
+    # $onset_date =$_POST['onset_date'];
+    # $sensitivity = $_POST['sensitivity'];
+    # $pc_catid = $_POST['pc_catid'];
+    # $billing_facility = $_POST['billing_facility'];
+    # $list = $_POST['list'];
+
+    def self.create(options = {})
+      params = {
+        :token => token_from_obj(options[:token]),
+        :patientId => options[:pid],
+        :reason => nil,
+        :facility => options[:oemr_facility_id].to_s, # Phlox::Facility.find(options[:oemr_facility_id]).name,
+        :facility_id => options[:oemr_facility_id], # Phlox::Facility.find(options[:oemr_facility_id]).id,
+        :dateService => options[:scheduled_at],
+        :onset_date => nil,
+        :sensitivity => nil,
+        :pc_catid => pc_catid[options[:patient_type]],
+        :billing_facility => nil,
+        :list => []
+      }
+      response = post(:addvisit, params)
+      decoded_body = decode_body_from_response(response).fetch('visit_id')
+      return decoded_body
+    end
+
     private
 
     def self.get_visits(pid, token)
@@ -27,6 +59,11 @@ module Phlox
       decoded_body = decode_body_from_response(response).fetch('Visit')
       decoded_body = [decoded_body] if decoded_body.is_a?(Hash)
       return decoded_body
+    end
+
+    # pc_catid: 9 = Established patient, 10 = New patient
+    def self.pc_catid
+      {"New Patient" => 10, "Established Patient" => 9}
     end
 
   end
