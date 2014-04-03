@@ -174,44 +174,47 @@ module Phlox
 
 
     context "with valid attributes" do
+      let(:created_visit_id){ Encounter.create(
+        :token => '12345',
+        :pid => 1,
+        :oemr_facility_id => 10,
+        :scheduled_at => Time.now.to_s(:db),
+        :patient_type => "Established Patient"
+        )}
+
+      let(:updated_visit){ Encounter.update(
+        :oemr_encounter_id => created_visit_id,
+        :token => '12345',
+        :pid => 1,
+        :oemr_facility_id => 10,
+        :scheduled_at => Time.now.to_s(:db),
+        :patient_type => "New Patient"
+        )}
+
+      let(:deleted_visit){ Encounter.delete(created_visit_id, '12345')}
+
       before(:all) do
         add_response = "<PatientVisit><status>0</status><reason>The Patient visit has been added</reason><visit_id>999</visit_id></PatientVisit>"
-        # update_response = ""
+        update_response = "<PatientVisit><status>0</status><reason>Patient visit updated successfully</reason><visit_id>999</visit_id></PatientVisit>"
+        delete_response = "<visit><status>0</status><reason>The Visit has been deleted</reason></visit>"
         ActiveResource::HttpMock.respond_to do |mock|
           mock.post "/openemr/api/addvisit", {}, add_response, 200
-          #mock.post "/openemr/api/updateEncounter", {}, update_response, 200
+          mock.post "/openemr/api/updatevisit", {}, update_response, 200
+          mock.post "/openemr/api/deletevisit", {}, delete_response, 200
         end
       end
 
-      context "creating" do
-        let(:new_visit){ Encounter.create(
-          :token => '12345',
-          :pid => 1,
-          :oemr_facility_id => 10,
-          :scheduled_at => Time.now.to_s(:db),
-          :patient_type => "Established Patient"
-          )}
-
-        it "should respond with the OpenEMR visit id" do
-          new_visit.should == "999"
-        end
-
+      it "should create successfully and respond with the OpenEMR visit id" do
+        created_visit_id.should == "999"
       end
 
-      # context "updating" do
-      #   let(:Encounter){ Encounter.find_by_id(1, '12345') }
-      #   subject{ Encounter.update_attributes(:firstname => 'Testme') }
-      #
-      #   it "returns true" do
-      #     expect(Encounter.update_attributes(:firstname => 'Testme')).to be_true
-      #   end
-      # end
-      #
-      # context "saving" do
-      #   let(:Encounter){ Encounter.new({:firstname => 'Test', :lastname => 'Meout'}, '12345') }
-      #   subject{ Encounter.save }
-      #   it_behaves_like "a persisted Encounter"
-      # end
+      it "should update selected encounter and respond true" do
+        updated_visit.should be_true
+      end
+
+      it "should delete the selected encounter" do
+        deleted_visit.should be_true
+      end
 
     end
 
