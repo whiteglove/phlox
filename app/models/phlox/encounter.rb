@@ -26,7 +26,6 @@
 module Phlox
   class Encounter < Base
     include Phlox::Authenticated
-    include Phlox::Validators
 
     # validates :facility_id, facility_id: true, if: ->(object){ object.attribute_present?('facility_id') }
     # validates :facility, facility: true, if: ->(object){ object.attribute_present?('facility') }
@@ -48,7 +47,11 @@ module Phlox
     def self.create(options = {})
       response = post(:addvisit, create_params(options))
       decoded_body = decode_body_from_response(response).fetch('visit_id')
-      return decoded_body
+      if decoded_body.fetch('status') == 0
+        return decoded_body
+      else
+        return decoded_body.fetch('reason')
+      end 
     end
 
     def self.update(options = {})

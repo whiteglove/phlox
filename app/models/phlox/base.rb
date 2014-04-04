@@ -12,12 +12,6 @@ module Phlox
       super(custom_method_name, nil, body.to_query)
     end
 
-    # their is an id for a patient demographic, but everything in the API wants the 'external id' (pid, patient_id)
-    # the original can be acquired using attributes['id']
-    def id
-      attributes['pid'].try(:to_i)
-    end
-
     def save
       new? ? create(auth_token) : update(auth_token)
     end

@@ -23,8 +23,8 @@ module Phlox
     validates :ethnicity, ethnicity: true, if: ->(object){ object.attribute_present?('ethnicity') }
     validates :title, honorific: true, if: ->(object){ object.attribute_present?('title') }
 
-    def self.find_by_id(id, token)
-      response = post(:getpatientrecord, {:patientID => id, :token => token_from_obj(token)} )
+    def self.find_by_id(pid, token)
+      response = post(:getpatientrecord, {:patientID => pid, :token => token_from_obj(token)} )
       decoded_body = decode_body_from_response(response).fetch('Patient')
 
       # This call will sometimes return a status of 0 even though it failed. Checking for 'demographics' is more reliable.
@@ -41,7 +41,7 @@ module Phlox
 
     def update(token=auth_token)
       return false unless valid?
-      response = self.class.post(:updatepatient, self.attributes.merge(:token => token, :patientId => self.id))
+      response = self.class.post(:updatepatient, self.attributes.merge(:token => token, :patientId => self.pid))
       self.class.decode_body_from_response(response, true)
     end
 
@@ -62,7 +62,7 @@ module Phlox
       # will silently drop them) so we reload the full resource to be paranoid
       if patient_id = decoded_body.fetch('patientId')
        load(self.class.find_by_id(patient_id, token).attributes)
-       @persisted = true unless self.id.blank?    # there is no accessor for persisted
+       @persisted = true unless self.pid.blank?    # there is no accessor for persisted
        self
       else
         raise_client_error(decoded_body)

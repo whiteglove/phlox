@@ -3,16 +3,6 @@ require 'spec_helper'
 module Phlox
   describe Encounter do
 
-    shared_examples "a persisted Encounter" do
-      it "returns an Encounter object when successful" do
-        expect(subject).to be_a(Phlox::Encounter)
-      end
-
-      it "returns a persisted objected when successful" do
-        expect(subject.persisted?).to be_true
-      end
-    end
-
     # context "when validating" do
 
     #   it "allows valid attributes" do
@@ -149,7 +139,7 @@ module Phlox
         context "Find by visit" do
           let(:visit) { Encounter.find_by_id(16, 1, '12345') }
 
-          it "should return the visit with id 9" do
+          it "should return the visit with encounter 16" do
             visit.encounter.should == "16"
           end
         end
