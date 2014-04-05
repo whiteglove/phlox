@@ -167,7 +167,7 @@ module Phlox
       let(:created_visit_id){ Encounter.create(
         :token => '12345',
         :pid => 1,
-        :oemr_facility_id => 10,
+        :oemr_facility_id => 11,
         :scheduled_at => Time.now.to_s(:db),
         :patient_type => "Established Patient"
         )}
@@ -176,7 +176,7 @@ module Phlox
         :oemr_encounter_id => created_visit_id,
         :token => '12345',
         :pid => 1,
-        :oemr_facility_id => 10,
+        :oemr_facility_id => 11,
         :scheduled_at => Time.now.to_s(:db),
         :patient_type => "New Patient"
         )}
@@ -187,10 +187,12 @@ module Phlox
         add_response = "<PatientVisit><status>0</status><reason>The Patient visit has been added</reason><visit_id>999</visit_id></PatientVisit>"
         update_response = "<PatientVisit><status>0</status><reason>Patient visit updated successfully</reason><visit_id>999</visit_id></PatientVisit>"
         delete_response = "<visit><status>0</status><reason>The Visit has been deleted</reason></visit>"
+        get_facility_response = "<facilities><status>0</status><reason>The Facilities Record has been fetched</reason><facility><id>11</id><name>Your Clinic Name Here</name></facility></facilities>"
         ActiveResource::HttpMock.respond_to do |mock|
           mock.post "/openemr/api/addvisit", {}, add_response, 200
           mock.post "/openemr/api/updatevisit", {}, update_response, 200
           mock.post "/openemr/api/deletevisit", {}, delete_response, 200
+          mock.post "/openemr/api/getfacility", {}, get_facility_response, 200
         end
       end
 

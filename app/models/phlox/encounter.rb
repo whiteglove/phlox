@@ -46,19 +46,19 @@ module Phlox
 
     def self.create(options = {})
       response = post(:addvisit, create_params(options))
-      decoded_body = decode_body_from_response(response).fetch('visit_id')
-      if decoded_body.fetch('status') == 0
-        return decoded_body
+      decoded_body = decode_body_from_response(response)
+      if decoded_body.fetch('status') == "0"
+        return decoded_body.fetch('visit_id')
       else
         return decoded_body.fetch('reason')
-      end 
+      end
     end
 
     def self.update(options = {})
       update_params = create_params(options).merge!(:encounter => options[:oemr_encounter_id])
       response = post(:updatevisit, update_params)
       decoded_body = decode_body_from_response(response)
-      if decoded_body.fetch('status') == 0
+      if decoded_body.fetch('status') == "0"
         return true
       else
         return decoded_body.fetch('reason')
@@ -68,7 +68,7 @@ module Phlox
     def self.delete(oemr_encounter_id, token)
       response = post(:deletevisit, {:visit_id => oemr_encounter_id, :token => token_from_obj(token)})
       decoded_body = decode_body_from_response(response)
-      if decoded_body.fetch('status') == 0
+      if decoded_body.fetch('status') == "0"
         return true
       else
         return decoded_body.fetch('reason')
@@ -94,8 +94,8 @@ module Phlox
         :token => token_from_obj(options[:token]),
         :patientId => options[:pid],
         :reason => nil,
-        :facility => options[:oemr_facility_id].to_s, # Phlox::Facility.find(options[:oemr_facility_id]).name,
-        :facility_id => options[:oemr_facility_id], # Phlox::Facility.find(options[:oemr_facility_id]).id,
+        :facility => Facility.find_by_id(:oemr_facility_id => options[:oemr_facility_id], :token => options[:token]).name,
+        :facility_id => Facility.find_by_id(:oemr_facility_id => options[:oemr_facility_id], :token => options[:token]).id,
         :dateService => options[:scheduled_at],
         :onset_date => nil,
         :sensitivity => nil,

@@ -31,7 +31,7 @@ module Phlox
     def self.create(options = {})
       response = post(:addfacility, create_params(options))
       decoded_body = decode_body_from_response(response)
-      if decoded_body.fetch('status') == 0
+      if decoded_body.fetch('status') == "0"
         return get_facility(options).fetch('id')
       else
         return decoded_body.fetch('reason')
@@ -41,17 +41,16 @@ module Phlox
     private
 
     def self.get_facility(options)
-      get_facilities(options).detect do |facility|
+      get_facilities(options).select do |facility|
         if options[:oemr_facility_id]
           facility["id"] == options[:oemr_facility_id].to_s
         else
-          (facility["name"] == options[:name]) && (facility["street"] == options[:street])
+          facility["name"] == options[:name]
         end
-      end
+      end.last # OpenEMR allows more than one facility with the same name
     end
 
     def self.get_facilities(options)
-      # oemr_facility_id, token
       response = post(:getfacility, {:token => token_from_obj(options[:token])})
       decoded_body = decode_body_from_response(response).fetch('facility')
       decoded_body = [decoded_body] if decoded_body.is_a?(Hash)
