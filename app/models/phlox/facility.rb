@@ -35,9 +35,9 @@ module Phlox
       response = post(:addfacility, create_params(options))
       decoded_body = decode_body_from_response(response)
       if decoded_body.fetch('status') == "0"
-        return get_facility(options).fetch('id')
+        return get_facility(options)
       else
-        return decoded_body.fetch('reason')
+        return raise_client_error(decoded_body)
       end
     end
 
@@ -48,7 +48,7 @@ module Phlox
       if decoded_body.fetch('status') == "0"
         return true
       else
-        return decoded_body.fetch('reason')
+        return raise_client_error(decoded_body)
       end
     end
 
@@ -75,6 +75,7 @@ module Phlox
 
     def self.create_params(options)
       {
+        :token => options[:token],
         :name => options[:name],
         :phone => options[:phone],
         :fax => options[:fax],

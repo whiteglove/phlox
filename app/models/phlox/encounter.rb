@@ -43,7 +43,7 @@ module Phlox
       if decoded_body.fetch('status') == "0"
         return decoded_body.fetch('visit_id')
       else
-        return decoded_body.fetch('reason')
+        return raise_client_error(decoded_body)
       end
     end
 
@@ -54,7 +54,7 @@ module Phlox
       if decoded_body.fetch('status') == "0"
         return true
       else
-        return decoded_body.fetch('reason')
+        return raise_client_error(decoded_body)
       end
     end
 
@@ -64,7 +64,7 @@ module Phlox
       if decoded_body.fetch('status') == "0"
         return true
       else
-        return decoded_body.fetch('reason')
+        return raise_client_error(decoded_body)
       end
     end
 

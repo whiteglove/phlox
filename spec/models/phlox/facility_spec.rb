@@ -110,7 +110,7 @@ module Phlox
           )}
 
           it "should create a facility with id 100" do
-            create_facility.should == "100"
+            create_facility["id"].should == "100"
           end
         end
       end
