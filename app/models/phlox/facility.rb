@@ -1,24 +1,27 @@
 # Expected CREATE params
-# $name = $_POST['name']; 1
-# $phone = $_POST['phone']; 1
-# $fax = $_POST['fax']; 1
-# $street = $_POST['street']; 1
-# $city = $_POST['city']; 1
-# $state = $_POST['state']; 1
-# $postal_code = $_POST['postal_code']; 1
-# $country_code = $_POST['country_code']; 1
-# $federal_ein = $_POST['federal_ein']; 0
-# $service_location = $_POST['service_location']; 0
-# $billing_location = $_POST['billing_location']; 0
-# $accepts_assignment = $_POST['accepts_assignment']; 0
-# $pos_code = $_POST['pos_code']; 1
-# $x12_sender_id = $_POST['x12_sender_id']; 0
-# $attn = $_POST['attn']; 0
-# $domain_identifier = $_POST['domain_identifier']; 0
-# $facility_npi = $_POST['facility_npi']; 1
-# $tax_id_type = $_POST['tax_id_type']; 0
-# $color = $_POST['color']; 0
-# $primary_business_entity = 0; 0
+# $name = $_POST['name'];
+# $phone = $_POST['phone'];
+# $fax = $_POST['fax'];
+# $street = $_POST['street'];
+# $city = $_POST['city'];
+# $state = $_POST['state'];
+# $postal_code = $_POST['postal_code'];
+# $country_code = $_POST['country_code'];
+# $pos_code = $_POST['pos_code'];
+# $facility_npi = $_POST['facility_npi'];
+
+# Expected UPDATE params
+# $facilityId = $_POST['id'];
+# $name = $_POST['name'];
+# $phone = $_POST['phone'];
+# $fax = $_POST['fax'];
+# $street = $_POST['street'];
+# $city = $_POST['city'];
+# $state = $_POST['state'];
+# $postal_code = $_POST['postal_code'];
+# $country_code = $_POST['country_code'];
+# $pos_code = $_POST['pos_code'];
+# $facility_npi = $_POST['facility_npi'];
 
 module Phlox
   class Facility < Base
@@ -37,6 +40,19 @@ module Phlox
         return decoded_body.fetch('reason')
       end
     end
+
+    def self.update(options = {})
+      update_params = create_params(options).merge!(:facilityId => options[:oemr_facility_id])
+      response = post(:updatefacility, update_params)
+      decoded_body = decode_body_from_response(response)
+      if decoded_body.fetch('status') == "0"
+        return true
+      else
+        return decoded_body.fetch('reason')
+      end
+    end
+
+    # There is no DELETE method for Phlox::Facility
 
     private
 

@@ -21,8 +21,11 @@ module Phlox
               </facility>
             </facilities>"
 
+          update_response = "<facility><status>0</status><reason>The Facility has been updated</reason></facility>"
+
           ActiveResource::HttpMock.respond_to do |mock|
             mock.post "/openemr/api/getfacility", {}, get_response, 200
+            mock.post "/openemr/api/updatefacility", {}, update_response, 200
           end
         end
 
@@ -34,6 +37,27 @@ module Phlox
 
           it "should return the facility with id 4" do
             find_facility.id.should == "4"
+          end
+        end
+
+        context "update" do
+          let(:update_facility) { Facility.update(
+            :oemr_facility_id => 4,
+            :token => '12345',
+            :name => 'Facility 1',
+            :phone => '(512) 555-1212',
+            :fax => '(512) 555-2121',
+            :street => '123 Main Street',
+            :city => 'Austin',
+            :state => 'TX',
+            :postal_code => '78704',
+            :country_code => 'USA',
+            :pos_code => 11,
+            :facility_npi => 'ABC12345'
+          )}
+
+          it "should update the facility and return true" do
+            update_facility.should be_true
           end
         end
       end
@@ -63,6 +87,7 @@ module Phlox
                     <name>Facility 1</name>
                 </facility>
               </facilities>"
+
           ActiveResource::HttpMock.respond_to do |mock|
             mock.post "/openemr/api/addfacility", {}, create_response, 200
             mock.post "/openemr/api/getfacility", {}, get_response, 200

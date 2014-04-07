@@ -27,13 +27,6 @@ module Phlox
   class Encounter < Base
     include Phlox::Authenticated
 
-    # validates :facility_id, facility_id: true, if: ->(object){ object.attribute_present?('facility_id') }
-    # validates :facility, facility: true, if: ->(object){ object.attribute_present?('facility') }
-    # validates :reason, reason: true, if: ->(object){ object.attribute_present?('reason') }
-    # validates :dateService, dateService: true, if: ->(object){ object.attribute_present?('dateService') }
-    # validates :provider_id, provider_id: true, if: ->(object){ object.attribute_present?('provider_id') }
-    # validates :list, list: true, if: ->(object){ object.attribute_present?('list') }
-
     def self.find_by_patient_id(pid, token)
       get_visits(pid, token).map do |visit|
         new(visit, token, true)
