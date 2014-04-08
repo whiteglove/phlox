@@ -41,7 +41,7 @@ module Phlox
       response = post(:addvisit, create_params(options))
       decoded_body = decode_body_from_response(response)
       if decoded_body.fetch('status') == "0"
-        return decoded_body.fetch('visit_id')
+        return decoded_body
       else
         return raise_client_error(decoded_body)
       end

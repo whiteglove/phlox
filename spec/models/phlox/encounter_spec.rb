@@ -113,7 +113,7 @@ module Phlox
 
 
     context "with valid attributes" do
-      let(:created_visit_id){ Encounter.create(
+      let(:created_visit){ Encounter.create(
         :token => '12345',
         :pid => 1,
         :oemr_facility_id => 11,
@@ -122,7 +122,7 @@ module Phlox
         )}
 
       let(:updated_visit){ Encounter.update(
-        :oemr_encounter_id => created_visit_id,
+        :oemr_encounter_id => created_visit["visit_id"],
         :token => '12345',
         :pid => 1,
         :oemr_facility_id => 11,
@@ -130,7 +130,7 @@ module Phlox
         :patient_type => "New Patient"
         )}
 
-      let(:deleted_visit){ Encounter.delete(created_visit_id, '12345')}
+      let(:deleted_visit){ Encounter.delete(created_visit["visit_id"], '12345')}
 
       before(:all) do
         add_response = "<PatientVisit><status>0</status><reason>The Patient visit has been added</reason><visit_id>999</visit_id></PatientVisit>"
@@ -146,7 +146,7 @@ module Phlox
       end
 
       it "should create successfully and respond with the OpenEMR visit id" do
-        created_visit_id.should == "999"
+        created_visit["visit_id"].should == "999"
       end
 
       it "should update selected encounter and respond true" do
