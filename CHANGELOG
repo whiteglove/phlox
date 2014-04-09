@@ -1,3 +1,6 @@
+v1.1.0 =====
+* Added Encounter and Facility models
+
 v1.0.1 =====
 * Update gem loading so it requires base model before others
 
@@ -13,4 +16,3 @@ v0.0.1 =====
 * Login (auth) support added
 * Patient find, add, update support added
 * Added simplecov code coverage reporting
-
