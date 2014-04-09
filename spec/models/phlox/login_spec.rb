@@ -45,7 +45,7 @@ module Phlox
     context "when authorizing a system user" do
       subject { Login.system_authorize }
 
-      before(:all) do
+      before do
         ar_response = "<MedMasterUser><status>0</status><reason>Ok.</reason><token>12345</token></MedMasterUser>\n"
         ActiveResource::HttpMock.respond_to do |mock|
           mock.post "/openemr/api/login", {}, ar_response, 200
