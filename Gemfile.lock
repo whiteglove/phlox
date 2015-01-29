@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    phlox (1.1.0)
+    phlox (2.0.0)
       activeresource
       rails (~> 3.2.16)
 
@@ -41,6 +41,9 @@ GEM
     docile (1.1.1)
     erubis (2.7.0)
     hike (1.2.3)
+    httparty (0.13.3)
+      json (~> 1.8)
+      multi_xml (>= 0.5.2)
     i18n (0.6.9)
     journey (1.0.4)
     jquery-rails (3.0.4)
@@ -51,7 +54,11 @@ GEM
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.25.1)
+    mini_portile (0.6.2)
     multi_json (1.8.2)
+    multi_xml (0.5.5)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
     polyglot (0.3.4)
     rack (1.4.5)
     rack-cache (1.2)
@@ -111,7 +118,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  httparty
   jquery-rails
+  nokogiri
   phlox!
   rspec-rails
   simplecov

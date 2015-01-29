@@ -27,13 +27,13 @@ module ActiveResource #:nodoc:
 
       module ClassMethods
         def element_path_with_extension(*args)
-          Phlox::Base.site.path
+          Phlox::Openemr::Base.site.path
         end
         def new_element_path_with_extension(*args)
-          Phlox::Base.site.path
+          Phlox::Openemr::Base.site.path
         end
         def collection_path_with_extension(*args)
-          Phlox::Base.site.path
+          Phlox::Openemr::Base.site.path
         end
         def custom_method_collection_url_with_extension(method_name, options={})
           prefix_options, query_options = split_options(options)
