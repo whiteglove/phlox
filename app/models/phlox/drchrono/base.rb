@@ -1,3 +1,5 @@
+require 'httparty'
+
 module Phlox
   module Drchrono
     class Base
