@@ -24,13 +24,15 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
     end
 
     def create(params = {})
+      params[:chart_id] = SecureRandom.uuid
+      params[:doctor] = Phlox::DrChrono::Doctor.default_doctor
       body = {
         'chart_id' => params[:chart_id],
-        'first_name' => params[:first_name],
-        'last_name' => params[:last_name],
+        'first_name' => params[:firstname],
+        'last_name' => params[:lastname],
         'gender' => params[:gender],
         'date_of_birth' => params[:dob],
-        'address' => params[:address],
+        'address' => "#{params[:street]} #{params[:apt_number]}",
         'city' => params[:city],
         'state' => params[:state],
         'zip_code' => params[:zip],

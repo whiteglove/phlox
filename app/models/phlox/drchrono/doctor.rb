@@ -20,6 +20,10 @@ class Phlox::Drchrono::Doctor < Phlox::Drchrono::Base
       results.select{|result| result["last_name"] == last_name}
     end
 
+    def default_doctor
+      "/api/doctors/69014"
+    end
+
     private
 
     def url
