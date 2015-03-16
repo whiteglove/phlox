@@ -24,6 +24,7 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
     end
 
     def create(params = {})
+      params = Hash[params.map{ |k, v| [k.to_sym, v] }] # Convert all keys to symbols
       params[:chart_id] = SecureRandom.uuid
       params[:doctor] = Phlox::Drchrono::Doctor.default_doctor
       body = {
