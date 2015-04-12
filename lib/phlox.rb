@@ -30,5 +30,6 @@ else
   # require base file before other models
   require File.dirname(__FILE__) + '/../app/models/phlox/openemr/base.rb'
   Dir.glob(File.dirname(__FILE__) + '/../app/models/phlox/openemr/*.rb'){ |file| require file }
+  require File.dirname(__FILE__) + '/../app/models/phlox/drchrono/base.rb'
   Dir.glob(File.dirname(__FILE__) + '/../app/models/phlox/drchrono/*.rb'){ |file| require file }
 end

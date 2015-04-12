@@ -19,6 +19,9 @@ Gem::Specification.new do |s|
 
   s.add_dependency "rails", "~> 3.2.8"
   s.add_dependency "activeresource"
+  s.add_dependency "activesupport"
+  s.add_dependency "httparty"
+  s.add_dependency "nokogiri"
 
   s.add_development_dependency "rspec-rails"
   s.add_development_dependency "simplecov"
