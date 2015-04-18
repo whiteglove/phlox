@@ -8,17 +8,9 @@ class Phlox::Drchrono::Appointment < Phlox::Drchrono::Base
 
   class << self
 
-    def where(params = {})
+    def where(params)
       valid_params?(params)
-      query_url = url
-      params.each do |k,v|
-        if query_url == url
-          query_url += "?#{k}=#{v}"
-        else
-          query_url += "&#{k}=#{v}"
-        end
-      end
-      results = JSON.parse(HTTParty.get(query_url, headers: auth_header).response.body)["results"]
+      results = JSON.parse(HTTParty.get(url_with_query(params), headers: auth_header).response.body)["results"]
       return nil if results.empty?
       results.map do |result|
         new(result)
@@ -37,6 +29,18 @@ class Phlox::Drchrono::Appointment < Phlox::Drchrono::Base
       end
       raise "Invalid params: #{invalid_params.join(", ")}" unless invalid_params.empty?
       true
+    end
+
+    def url_with_query(params)
+      query_url = url
+      params.each do |k,v|
+        if query_url == url
+          query_url += "?#{k}=#{v}"
+        else
+          query_url += "&#{k}=#{v}"
+        end
+      end
+      query_url
     end
   end
 end

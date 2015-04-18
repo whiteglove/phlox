@@ -19,8 +19,13 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
       new(results.select{ |patient| patient["id"] == id }.first)
     end
 
-    def all
-      JSON.parse(HTTParty.get(url, headers: auth_header).response.body)["results"]
+    def where(params)
+      valid_params?(params)
+      results = JSON.parse(HTTParty.get(url_with_query(params), headers: auth_header).response.body)["results"]
+      return nil if results.empty?
+      results.map do |result|
+        new(result)
+      end
     end
 
     def create(params = {})
@@ -47,6 +52,33 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
 
     def url
       "#{Phlox.drchrono_site}/api/patients"
+    end
+
+    def valid_params?(params)
+      invalid_params = []
+      params = Hash[params.map{ |k, v| [k.to_s, v] }]
+      params.each do |k,v|
+        invalid_params << k unless ["doctor","since","first_name","last_name","email","date_of_birth","gender"].include?("#{k}")
+      end
+      raise "Invalid params: #{invalid_params.join(", ")}" unless invalid_params.empty?
+      true
+    end
+
+    def url_with_query(params)
+      query_url = url
+      params.each do |k,v|
+        key = translate_search_param(k)
+        if query_url == url
+          query_url += "?#{key}=#{v}"
+        else
+          query_url += "&#{key}=#{v}"
+        end
+      end
+      query_url
+    end
+
+    def translate_search_param(key)
+      ["first_name","last_name","email"].include?(key.to_s) ? "search" : key
     end
   end
 end
