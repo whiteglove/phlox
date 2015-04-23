@@ -21,11 +21,12 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
 
     def where(params)
       valid_params?(params)
+      params = Hash[params.map{ |k, v| [k.to_s, v] }]
       results = JSON.parse(HTTParty.get(url_with_query(params), headers: auth_header).response.body)["results"]
       return nil if results.empty?
       %w{last_name first_name email}.each do |param|
-        if params["#{param}".to_sym].present?
-          results = results.select{|patient| patient["#{param}"].downcase.include? params["#{param}".to_sym].downcase}
+        if params["#{param}"].present?
+          results = results.select{|patient| patient["#{param}"].downcase.include? params["#{param}"].downcase}
         end
       end
       results.map do |result|
@@ -84,6 +85,10 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
 
     def translate_search_param(key)
       ["first_name","last_name","email"].include?(key.to_s) ? "search" : key
+    end
+
+    def stringify_params(params)
+      Hash[params.map{ |k, v| [k.to_s, v] }]
     end
   end
 end
