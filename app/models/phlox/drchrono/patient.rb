@@ -23,6 +23,11 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
       valid_params?(params)
       results = JSON.parse(HTTParty.get(url_with_query(params), headers: auth_header).response.body)["results"]
       return nil if results.empty?
+      %w{last_name first_name email}.each do |param|
+        if params["#{param}".to_sym].present?
+          results = results.select{|patient| patient["#{param}"].downcase.include? params["#{param}".to_sym].downcase}
+        end
+      end
       results.map do |result|
         new(result)
       end
