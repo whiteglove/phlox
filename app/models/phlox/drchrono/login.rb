@@ -16,7 +16,7 @@ class Phlox::Drchrono::Login < Phlox::Drchrono::Base
         auth_code = authorize(Phlox.drchrono_system_user,Phlox.drchrono_system_password)
         url = "#{Phlox.drchrono_site}/o/token/?code=#{auth_code}&grant_type=authorization_code&redirect_uri=https://api.whiteglove.com/&client_id=#{Phlox.drchrono_client_id}&client_secret=#{Phlox.drchrono_client_secret}"
       end
-      json = JSON.parse(post(url).response.body)
+      json = JSON.parse(post(url, :headers => { 'Content-Type' => 'application/json' }).response.body)
       @token_type = json["token_type"]
       @access_token = json["access_token"]
       @refresh_token = json["refresh_token"]
@@ -38,6 +38,7 @@ class Phlox::Drchrono::Login < Phlox::Drchrono::Base
     end
 
     def do_authorize(url, fields)
+      return $1 if auth_code = url =~ /\?code=(\w+)$/
       fields['allow'] = 'Authorize'
       @http_response = post(post_url(url), body: fields, headers: headers.merge('Referer' => url), no_follow: true).response
     rescue HTTParty::RedirectionTooDeep => e
@@ -58,7 +59,11 @@ class Phlox::Drchrono::Login < Phlox::Drchrono::Base
       @http_response = get(url, headers: headers.merge('Referer' => url), no_follow: true).response
       doc = Nokogiri::HTML(@http_response.body)
       form = doc.css('form').last
-      [url, extract_form_fields_from_form(form)]
+      if form.present?
+        [url, extract_form_fields_from_form(form)]
+      else
+        [url, {'allow' => 'Authorize'}]
+      end
     rescue HTTParty::RedirectionTooDeep => e
       @http_response = e.response
       do_after_login(@http_response.header['location'])

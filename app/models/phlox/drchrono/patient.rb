@@ -20,13 +20,19 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
     end
 
     def where(params)
-      valid_params?(params)
+      results = []
       params = Hash[params.map{ |k, v| [k.to_s, v] }]
-      results = JSON.parse(HTTParty.get(url_with_query(params), headers: auth_header).response.body)["results"]
-      return nil if results.empty?
+      request = JSON.parse(HTTParty.get(url_with_query(params), headers: auth_header).response.body)
+      return nil if request["results"].empty?
+      results << request["results"]
+      while request["next"].present?
+        puts "Executing #{request["next"]}"
+        results << request["results"]
+        request = JSON.parse(HTTParty.get(request["next"], headers: auth_header).response.body)
+      end
       %w{last_name first_name email}.each do |param|
         if params["#{param}"].present?
-          results = results.select{|patient| patient["#{param}"].downcase.include? params["#{param}"].downcase}
+          results = results.flatten.select{|patient| patient["#{param}"].downcase.include? params["#{param}"].downcase}
         end
       end
       results.map do |result|
@@ -40,34 +46,25 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
       params[:doctor] = Phlox::Drchrono::Doctor.default_doctor
       body = {
         'chart_id' => params[:chart_id],
-        'first_name' => params[:firstname],
-        'last_name' => params[:lastname],
+        'first_name' => params[:first_name],
+        'last_name' => params[:last_name],
         'gender' => params[:gender],
-        'date_of_birth' => params[:dob],
-        'address' => "#{params[:street]} #{params[:apt_number]}",
+        'date_of_birth' => params[:date_of_birth],
+        'address' => params[:address],
         'city' => params[:city],
         'state' => params[:state],
-        'zip_code' => params[:zip],
+        'zip_code' => params[:zip_code],
         'email' => params[:email],
         'doctor' => params[:doctor],
         'employer' => params[:employer],
-        'home_phone' => params[:phone]
+        'home_phone' => params[:home_phone]
       }
-      JSON.parse(HTTParty.post(url, body: body, headers: auth_header).response.body)
+      response = JSON.parse(HTTParty.post(url, body: body, headers: auth_header).response.body)
+      new(response)
     end
 
     def url
       "#{Phlox.drchrono_site}/api/patients"
-    end
-
-    def valid_params?(params)
-      invalid_params = []
-      params = Hash[params.map{ |k, v| [k.to_s, v] }]
-      params.each do |k,v|
-        invalid_params << k unless ["doctor","since","first_name","last_name","email","date_of_birth","gender"].include?("#{k}")
-      end
-      raise "Invalid params: #{invalid_params.join(", ")}" unless invalid_params.empty?
-      true
     end
 
     def url_with_query(params)
@@ -85,10 +82,6 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
 
     def translate_search_param(key)
       ["first_name","last_name","email"].include?(key.to_s) ? "search" : key
-    end
-
-    def stringify_params(params)
-      Hash[params.map{ |k, v| [k.to_s, v] }]
     end
   end
 end

@@ -3,6 +3,9 @@ PATH
   specs:
     phlox (2.0.0)
       activeresource
+      activesupport
+      httparty
+      nokogiri
       rails (~> 3.2.8)
 
 GEM
@@ -117,7 +120,7 @@ GEM
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
-    tzinfo (0.3.43)
+    tzinfo (0.3.44)
     yard (0.8.7.6)
 
 PLATFORMS
