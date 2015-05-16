@@ -23,7 +23,7 @@ module Phlox
           end
 
           it "object is not persisted" do
-            expect(subject.persisted?).to be_false
+            subject.persisted?.should == false
           end
 
         end

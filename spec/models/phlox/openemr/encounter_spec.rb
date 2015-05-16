@@ -151,11 +151,11 @@ module Phlox
         end
 
         it "should update selected encounter and respond true" do
-          updated_visit.should be_true
+          updated_visit.should == true
         end
 
         it "should delete the selected encounter" do
-          deleted_visit.should be_true
+          deleted_visit.should == true
         end
 
       end

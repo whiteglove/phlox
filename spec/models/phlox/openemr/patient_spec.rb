@@ -10,7 +10,7 @@ module Phlox
         end
 
         it "returns a persisted objected when successful" do
-          expect(subject.persisted?).to be_true
+          subject.persisted?.should == true
         end
       end
 
@@ -103,7 +103,7 @@ module Phlox
           subject{ patient.update_attributes(:firstname => 'Testme') }
 
           it "returns true" do
-            expect(patient.update_attributes(:firstname => 'Testme')).to be_true
+            patient.update_attributes(:firstname => 'Testme').should == true
           end
         end
 
@@ -125,7 +125,7 @@ module Phlox
           end
 
           it "returns unpersisted object" do
-            expect(subject.persisted?).to be_false
+            subject.persisted?.should == false
           end
         end
 
@@ -140,7 +140,7 @@ module Phlox
           subject{ patient.update_attributes(:sex => 'G') }
 
           it "returns false" do
-            expect(subject).to be_false
+            subject.should == false
           end
         end
 
@@ -153,7 +153,7 @@ module Phlox
           end
 
           it "returns unpersisted object" do
-            expect(subject.persisted?).to be_false
+            subject.persisted?.should == false
           end
         end
 

@@ -58,7 +58,7 @@ module Phlox
             )}
 
             it "should update the facility and return true" do
-              update_facility.should be_true
+              update_facility.should == true
             end
           end
         end
