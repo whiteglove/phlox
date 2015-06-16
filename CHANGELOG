@@ -1,3 +1,6 @@
+v2.0.1 =====
+* Check phlox.yml for redirect_uri property on DrChrono authorization requests
+
 v2.0.0 =====
 * Extended to include support for DrChrono EHR
 
