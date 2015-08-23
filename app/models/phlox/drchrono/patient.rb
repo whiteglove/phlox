@@ -1,9 +1,34 @@
 class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
 
-  attr_accessor :attributes
+  PATIENT_ATTRIBS = [:id, :first_name, :last_name, :date_of_birth, :gender, :address, :city, :state, :zip_code, :email, :home_phone]
 
-  def initialize(attribs = {})
-    @attributes = attribs
+  include ActiveModel::Validations
+
+  validates_presence_of :first_name, :last_name, :date_of_birth, :gender
+
+  attr_accessor *PATIENT_ATTRIBS
+
+  def attributes
+    {
+      :id => id,
+      :first_name => first_name,
+      :last_name => last_name,
+      :date_of_birth => date_of_birth,
+      :gender => gender,
+      :address => address,
+      :city => city,
+      :state => state,
+      :zip_code => zip_code,
+      :email => email,
+      :home_phone => home_phone
+    }
+  end
+
+  def initialize(attribs)
+    PATIENT_ATTRIBS.each do |attrib|
+      instance_variable_set("@#{attrib}", attribs[attrib])
+    end
+    valid?
   end
 
   # DrChrono doesn't support PUTs... Have to find a workaround.
@@ -12,12 +37,6 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
   # end
 
   class << self
-
-    # Assuming id is a unique identifier, this method replicates the ActiveRecord find method
-    def find(id)
-      results = JSON.parse(HTTParty.get(url, headers: auth_header).response.body)["results"]
-      new(results.select{ |patient| patient["id"] == id }.first)
-    end
 
     def where(params)
       results = []
@@ -36,7 +55,7 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
         end
       end
       results.map do |result|
-        new(result)
+        new(result.symbolize_keys)
       end
     end
 
@@ -60,7 +79,7 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
         'home_phone' => params[:home_phone]
       }
       response = JSON.parse(HTTParty.post(url, body: body, headers: auth_header).response.body)
-      new(response)
+      new(response.symbolize_keys)
     end
 
     def url
