@@ -37,32 +37,30 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
   class << self
 
     def where(params)
+      non_attrib_params = [:since]
+      valid_params?(params.symbolize_keys.keys - non_attrib_params)
       results = []
-      params = Hash[params.map{ |k, v| [k.to_s, v] }]
-      request = JSON.parse(HTTParty.get(url_with_query(params), headers: auth_header).response.body)
-      return nil if request["results"].empty?
-      results << request["results"]
-      while request["next"].present?
-        puts "Executing #{request["next"]}"
-        results << request["results"]
-        request = JSON.parse(HTTParty.get(request["next"], headers: auth_header).response.body)
+      response = JSON.parse(HTTParty.get(url_with_query(params), headers: auth_header).response.body)
+      return [] if response["results"].empty?
+      results << response["results"]
+      while response["next"].present?
+        results << response["results"]
+        response = JSON.parse(HTTParty.get(response["next"], headers: auth_header).response.body)
       end
       %w{last_name first_name email}.each do |param|
-        if params["#{param}"].present?
+        if params[param.to_sym].present?
           results = results.flatten.select{|patient| patient["#{param}"].downcase.include? params["#{param}"].downcase}
         end
       end
-      results.map do |result|
+      results.flatten.map do |result|
         new(result.symbolize_keys)
       end
     end
 
     def create(params)
-      valid_params?(params)
-      params = Hash[params.map{ |k, v| [k.to_sym, v] }] # Convert all keys to symbols
       params[:chart_id] = SecureRandom.uuid
       body = {}
-      params.each {|k,v| body[k.to_s] = v}
+      params.each {|k,v| body[k] = v}
       patient = new(body.symbolize_keys)
       if patient.valid?
         response = JSON.parse(HTTParty.post(url, body: body, headers: auth_header).response.body) 
@@ -92,9 +90,9 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
       ["first_name","last_name","email"].include?(key.to_s) ? "search" : key
     end
 
-    def valid_params?(params)
+    def valid_params?(keys)
       invalid_params = []
-      params.each {|k,v| invalid_params << k unless PATIENT_ATTRIBS.include?(k)}
+      keys.each {|k| invalid_params << k unless PATIENT_ATTRIBS.include?(k)}
       raise "Invalid params: #{invalid_params.join(", ")}" unless invalid_params.empty?
       true
     end
@@ -103,7 +101,7 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
   # Instance methods
 
   def update_attributes(attribs)
-    Phlox::Drchrono::Patient.valid_params?(attribs)
+    self.class.valid_params?(attribs.symbolize_keys.keys)
     response = JSON.parse(HTTParty.patch("#{self.class.url}/#{self.id}", body: attribs, headers: self.class.auth_header).response.body)
     if response["id"].present?
       attribs.each {|k,v| instance_variable_set("@#{k}", v)} 
