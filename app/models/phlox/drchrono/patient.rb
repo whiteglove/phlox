@@ -40,6 +40,7 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
       non_attrib_params = [:since]
       valid_params?(params.symbolize_keys.keys - non_attrib_params)
       results = []
+      # raise url_with_query(params).inspect
       response = JSON.parse(HTTParty.get(url_with_query(params), headers: auth_header).response.body)
       return [] if response["results"].empty?
       results << response["results"]
@@ -48,7 +49,7 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
         response = JSON.parse(HTTParty.get(response["next"], headers: auth_header).response.body)
       end
       %w{last_name first_name email}.each do |param|
-        if params[param.to_sym].present?
+        if params["#{param}"].present?
           results = results.flatten.select{|patient| patient["#{param}"].downcase.include? params["#{param}"].downcase}
         end
       end
@@ -59,7 +60,7 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
 
     def create(params)
       params[:chart_id] = SecureRandom.uuid
-      body = {}
+      body = {:doctor => 69014}
       params.each {|k,v| body[k] = v}
       patient = new(body.symbolize_keys)
       if patient.valid?
@@ -76,19 +77,18 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
     def url_with_query(params)
       query_url = url
       params.each do |k,v|
-        key = translate_search_param(k)
         if query_url == url
-          query_url += "?#{key}=#{v}"
+          query_url += "?#{k}=#{v}"
         else
-          query_url += "&#{key}=#{v}"
+          query_url += "&#{k}=#{v}"
         end
       end
       query_url
     end
 
-    def translate_search_param(key)
-      ["first_name","last_name","email"].include?(key.to_s) ? "search" : key
-    end
+    # def translate_search_param(key)
+    #   ["first_name","last_name","email"].include?(key.to_s) ? "search" : key
+    # end
 
     def valid_params?(keys)
       invalid_params = []
