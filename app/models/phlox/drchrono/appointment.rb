@@ -52,8 +52,9 @@ class Phlox::Drchrono::Appointment < Phlox::Drchrono::Base
       raise "Required params: date or date_range must be passed" unless (non_attrib_params & params.symbolize_keys.keys).present?
       valid_params?(params.symbolize_keys.keys - non_attrib_params)
       results = []
+      puts url_with_query(params)
       response = JSON.parse(HTTParty.get(url_with_query(params), headers: auth_header).response.body)
-      return [] if response["results"].empty?
+      return [] unless response["results"].present?
       results << response["results"]
       while response["next"].present?
         results << response["results"]
