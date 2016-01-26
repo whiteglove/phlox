@@ -48,20 +48,14 @@ class Phlox::Drchrono::Appointment < Phlox::Drchrono::Base
     end
 
     def where(params)
-      non_attrib_params = [:date,:date_range]
-      raise "Required params: date or date_range must be passed" unless (non_attrib_params & params.symbolize_keys.keys).present?
-      valid_params?(params.symbolize_keys.keys - non_attrib_params)
-      results = []
-      puts url_with_query(params)
       response = JSON.parse(HTTParty.get(url_with_query(params), headers: auth_header).response.body)
-      return [] unless response["results"].present?
-      results << response["results"]
-      while response["next"].present?
-        results << response["results"]
-        response = JSON.parse(HTTParty.get(response["next"], headers: auth_header).response.body)
-      end 
-      results.flatten.map do |result|
-        new(result.symbolize_keys)
+      if response.is_a?(Hash)
+        results = gather_paginated_results(response) 
+        results.flatten.map do |result|
+          new(result.symbolize_keys)
+        end
+      else
+        raise response.join(", ")
       end
     end
 
@@ -80,13 +74,6 @@ class Phlox::Drchrono::Appointment < Phlox::Drchrono::Base
       "#{Phlox.drchrono_site}/api/appointments"
     end
 
-    def valid_params?(keys)
-      invalid_params = []
-      keys.each {|k| invalid_params << k unless APPOINTMENT_ATTRIBS.include?(k)}
-      raise "Invalid params: #{invalid_params.join(", ")}" unless invalid_params.empty?
-      true
-    end
-
     def url_with_query(params)
       query_url = url
       params.each do |k,v|
@@ -98,17 +85,26 @@ class Phlox::Drchrono::Appointment < Phlox::Drchrono::Base
       end
       query_url
     end
+
+    def gather_paginated_results(response)
+      results = []
+      results << response["results"]
+      while response["next"].present?
+        results << response["results"]
+        response = JSON.parse(HTTParty.get(response["next"], headers: auth_header).response.body)
+      end 
+      results
+    end
   end
 
   # Instance Methods
 
   def update_attributes(attribs)
-    self.class.valid_params?(attribs.symbolize_keys.keys)
     response = JSON.parse(HTTParty.patch("#{self.class.url}/#{self.id}", body: attribs, headers: self.class.auth_header).response.body)
     if response["id"].present?
       attribs.each {|k,v| instance_variable_set("@#{k}", v)} 
     else
-      return response
+      add_drchrono_errors(response)
     end
     self
   end

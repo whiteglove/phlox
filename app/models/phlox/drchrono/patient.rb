@@ -35,32 +35,28 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
   end
 
   class << self
+    def find(id)
+      response = JSON.parse(HTTParty.get("#{url}/#{id}", headers: auth_header).response.body)
+      patient = new(response.symbolize_keys)
+      return nil unless response["id"].present?
+      patient
+    end
 
     def where(params)
-      non_attrib_params = [:since]
-      valid_params?(params.symbolize_keys.keys - non_attrib_params)
-      results = []
-      # raise url_with_query(params).inspect
       response = JSON.parse(HTTParty.get(url_with_query(params), headers: auth_header).response.body)
-      return [] if response["results"].empty?
-      results << response["results"]
-      while response["next"].present?
-        results << response["results"]
-        response = JSON.parse(HTTParty.get(response["next"], headers: auth_header).response.body)
-      end
-      %w{last_name first_name email}.each do |param|
-        if params["#{param}"].present?
-          results = results.flatten.select{|patient| patient["#{param}"].downcase.include? params["#{param}"].downcase}
+      if response.is_a?(Hash)
+        results = gather_paginated_results(response) 
+        results.flatten.map do |result|
+          new(result.symbolize_keys)
         end
-      end
-      results.flatten.map do |result|
-        new(result.symbolize_keys)
+      else
+        raise response.join(", ")
       end
     end
 
     def create(params)
       params[:chart_id] = SecureRandom.uuid
-      body = {:doctor => 69014}
+      body = {:doctor => Phlox.drchrono_default_doctor}
       params.each {|k,v| body[k] = v}
       patient = new(body.symbolize_keys)
       if patient.valid?
@@ -86,27 +82,25 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
       query_url
     end
 
-    # def translate_search_param(key)
-    #   ["first_name","last_name","email"].include?(key.to_s) ? "search" : key
-    # end
-
-    def valid_params?(keys)
-      invalid_params = []
-      keys.each {|k| invalid_params << k unless PATIENT_ATTRIBS.include?(k)}
-      raise "Invalid params: #{invalid_params.join(", ")}" unless invalid_params.empty?
-      true
+    def gather_paginated_results(response)
+      results = []
+      results << response["results"]
+      while response["next"].present?
+        results << response["results"]
+        response = JSON.parse(HTTParty.get(response["next"], headers: auth_header).response.body)
+      end 
+      results
     end
   end
 
   # Instance methods
 
   def update_attributes(attribs)
-    self.class.valid_params?(attribs.symbolize_keys.keys)
     response = JSON.parse(HTTParty.patch("#{self.class.url}/#{self.id}", body: attribs, headers: self.class.auth_header).response.body)
     if response["id"].present?
       attribs.each {|k,v| instance_variable_set("@#{k}", v)} 
     else 
-      return response
+      add_drchrono_errors(response)
     end
     self
   end
