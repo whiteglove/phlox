@@ -36,14 +36,14 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
 
   class << self
     def find(id)
-      response = JSON.parse(HTTParty.get("#{url}/#{id}", headers: auth_header).response.body)
+      response = JSON.parse(HTTParty.get(URI.encode("#{url}/#{id}"), headers: auth_header).response.body)
       patient = new(response.symbolize_keys)
       return nil unless response["id"].present?
       patient
     end
 
     def where(params)
-      response = JSON.parse(HTTParty.get(url_with_query(params), headers: auth_header).response.body)
+      response = JSON.parse(HTTParty.get(URI.encode(url_with_query(params)), headers: auth_header).response.body)
       if response.is_a?(Hash)
         results = gather_paginated_results(response) 
         results.flatten.map do |result|
@@ -60,7 +60,7 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
       params.each {|k,v| body[k] = v}
       patient = new(body.symbolize_keys)
       if patient.valid?
-        response = JSON.parse(HTTParty.post(url, body: body, headers: auth_header).response.body) 
+        response = JSON.parse(HTTParty.post(URI.encode(url), body: body, headers: auth_header).response.body) 
         response["id"].present? ? patient.id = response["id"] : patient.add_drchrono_errors(response)
       end
       patient
@@ -87,7 +87,7 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
       results << response["results"]
       while response["next"].present?
         results << response["results"]
-        response = JSON.parse(HTTParty.get(response["next"], headers: auth_header).response.body)
+        response = JSON.parse(HTTParty.get(URI.encode(response["next"]), headers: auth_header).response.body)
       end 
       results
     end
@@ -96,7 +96,7 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
   # Instance methods
 
   def update_attributes(attribs)
-    response = JSON.parse(HTTParty.patch("#{self.class.url}/#{self.id}", body: attribs, headers: self.class.auth_header).response.body)
+    response = JSON.parse(HTTParty.patch(URI.encode("#{self.class.url}/#{self.id}"), body: attribs, headers: self.class.auth_header).response.body)
     if response["id"].present?
       attribs.each {|k,v| instance_variable_set("@#{k}", v)} 
     else 
@@ -106,7 +106,7 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
   end
 
   def delete
-    response = HTTParty.delete("#{self.class.url}/#{self.id}", headers: self.class.auth_header).try(:response).try(:body)
+    response = HTTParty.delete(URI.encode("#{self.class.url}/#{self.id}"), headers: self.class.auth_header).try(:response).try(:body)
     if response.nil? 
       return self.id
     end
