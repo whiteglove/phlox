@@ -38,7 +38,7 @@ class Phlox::Drchrono::Patient < Phlox::Drchrono::Base
     def find(id)
       response = JSON.parse(HTTParty.get(URI.encode("#{url}/#{id}"), headers: auth_header).response.body)
       patient = new(response.symbolize_keys)
-      return nil unless response["id"].present?
+      raise response.inspect unless response["id"].present?
       patient
     end
 

@@ -43,7 +43,7 @@ class Phlox::Drchrono::Appointment < Phlox::Drchrono::Base
     def find(id)
       response = JSON.parse(HTTParty.get("#{url}/#{id}", headers: auth_header).response.body)
       appt = new(response.symbolize_keys)
-      return nil unless response["id"].present?
+      raise response.insepct unless response["id"].present?
       appt
     end
 
